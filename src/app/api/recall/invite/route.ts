@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { configManager } from "@/lib/config";
+import { transcriptsManager } from "@/lib/transcripts";
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,6 +36,11 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
+    
+    // Save bot ID and initial status to config, and clear previous transcripts for the new session
+    configManager.update({ activeBotId: data.id, activeBotStatus: "joining" });
+    transcriptsManager.clear();
+
     return NextResponse.json({ success: true, bot: data });
 
   } catch (error) {

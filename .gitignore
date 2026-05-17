@@ -43,3 +43,8 @@ next-env.d.ts
 # local vector database and meeting cache
 /vector_store/
 
+# local runtime data files
+/meem8.config.json
+/meem8.agent.json
+/meem8.transcripts.json
+
