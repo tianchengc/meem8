@@ -17,8 +17,11 @@ export default function LandingPage() {
       <div className="relative z-10">
         {/* Navigation */}
         <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
-          <div className="flex items-center">
-            <Image src="/meem8_logo.png" alt="Meem8 Logo" width={220} height={66} className="opacity-95 h-16 w-auto" />
+          <div className="flex items-center gap-3.5">
+            <Image src="/meem8_favicon.png" alt="Meem8 Logo" width={48} height={48} className="opacity-95 h-12 w-auto rounded-2xl shadow-[0_0_20px_rgba(52,211,153,0.2)]" />
+            <span className="font-extrabold tracking-widest text-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              MEEM8
+            </span>
           </div>
           <div className="flex items-center gap-6">
             <a href="https://linkedin.com/in/tianchengc" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
