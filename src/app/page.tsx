@@ -18,7 +18,7 @@ export default function LandingPage() {
         {/* Navigation */}
         <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
           <div className="flex items-center">
-            <Image src="/meem8_logo.png" alt="Meem8 Logo" width={130} height={39} className="opacity-95 h-9 w-auto" />
+            <Image src="/meem8_logo.png" alt="Meem8 Logo" width={220} height={66} className="opacity-95 h-16 w-auto" />
           </div>
           <div className="flex items-center gap-6">
             <a href="https://linkedin.com/in/tianchengc" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
