@@ -8,10 +8,16 @@ import Image from "next/image";
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-emerald-500/30 overflow-hidden">
-      {/* Background Gradients */}
+      {/* Cyberpunk Anime Background Artwork */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/10 blur-[120px]" />
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-[0.28] mix-blend-screen filter brightness-[0.85] contrast-[1.1]"
+          style={{ backgroundImage: 'url("/cyber_anime_bg.png")' }}
+        />
+        {/* Glow Gradients and Shadows */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
+        <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-emerald-500/10 blur-[130px]" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[45%] h-[45%] rounded-full bg-cyan-500/10 blur-[130px]" />
       </div>
 
       <div className="relative z-10">
