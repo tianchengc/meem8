@@ -17,9 +17,8 @@ export default function LandingPage() {
       <div className="relative z-10">
         {/* Navigation */}
         <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            <Image src="/meem8_logo.png" alt="Meem8" width={32} height={32} className="opacity-90" />
-            <span className="font-bold tracking-widest text-lg">MEEM8</span>
+          <div className="flex items-center">
+            <Image src="/meem8_logo.png" alt="Meem8 Logo" width={130} height={39} className="opacity-95 h-9 w-auto" />
           </div>
           <div className="flex items-center gap-6">
             <a href="https://linkedin.com/in/tianchengc" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors">
