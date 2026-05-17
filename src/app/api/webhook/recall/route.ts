@@ -1,24 +1,7 @@
 import { NextResponse } from "next/server";
 import { agentEngine } from "@/lib/agent/engine";
-
-const RECALL_API_KEY = process.env.RECALL_API_KEY;
-const TRIGGER_WORD = (process.env.MEEM8_TRIGGER_WORD || "hey gemma").toLowerCase();
-
-async function sendChatToRecall(botId: string, text: string) {
-  if (!RECALL_API_KEY) return;
-  try {
-    await fetch(`https://us-west-2.recall.ai/api/v1/bot/${botId}/send_chat_message/`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Token ${RECALL_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text }),
-    });
-  } catch (error) {
-    console.error("Failed to send chat message to Recall:", error);
-  }
-}
+import { configManager } from "@/lib/config";
+import { sendChatToRecall } from "@/lib/recall/api";
 
 async function processAndReplyToMeeting(botId: string, prompt: string) {
   try {
@@ -55,15 +38,20 @@ export async function POST(req: Request) {
     // Extract bot ID from payload (sometimes at payload.data.bot_id or payload.bot_id)
     const botId = payload.data?.bot_id || payload.bot_id;
 
+    if (botId) {
+      configManager.update({ activeBotId: botId });
+    }
+
     if (payload.event === "bot.transcript" || payload.data?.transcript?.text) {
       const transcriptText = payload.data?.transcript?.text?.toLowerCase() || "";
+      const triggerWord = configManager.get().triggerWord.toLowerCase();
       
-      if (botId && transcriptText.includes(TRIGGER_WORD)) {
-        console.log(`Wake word '${TRIGGER_WORD}' detected! Activating Agentic Engine...`);
+      if (botId && transcriptText.includes(triggerWord)) {
+        console.log(`Wake word '${triggerWord}' detected! Activating Agentic Engine...`);
         
         // Extract the actual question after the trigger word if possible, or just pass the whole text
-        const promptIndex = transcriptText.indexOf(TRIGGER_WORD);
-        const prompt = transcriptText.slice(promptIndex + TRIGGER_WORD.length).trim() || transcriptText;
+        const promptIndex = transcriptText.indexOf(triggerWord);
+        const prompt = transcriptText.slice(promptIndex + triggerWord.length).trim() || transcriptText;
         
         // Trigger asynchronously so we don't block the webhook response
         processAndReplyToMeeting(botId, prompt);
