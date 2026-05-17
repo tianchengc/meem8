@@ -25,12 +25,30 @@ export default function AgentMonitor() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let fullResponseText = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        fullResponseText += chunk;
         if (streamRef.current) {
-          streamRef.current.textContent += decoder.decode(value, { stream: true });
+          streamRef.current.textContent += chunk;
+        }
+      }
+
+      // Sync prompt and final answer back to Zoom/Meet chat so call participants can follow along!
+      if (fullResponseText.trim()) {
+        try {
+          await fetch("/api/recall/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: `💡 Dashboard Admin asked: "${prompt}"\n\n🤖 Gemma Co-Pilot: ${fullResponseText}`
+            }),
+          });
+        } catch (chatError) {
+          console.warn("Failed to broadcast dashboard Q&A to Recall chat:", chatError);
         }
       }
     } catch (error) {

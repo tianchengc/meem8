@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { agentEngine } from "@/lib/agent/engine";
 import { configManager } from "@/lib/config";
 import { sendChatToRecall } from "@/lib/recall/api";
+import { getEmbeddings } from "@/lib/vector/embed";
+import { vectorStore } from "@/lib/vector/store";
 
 async function processAndReplyToMeeting(botId: string, prompt: string) {
   try {
@@ -35,23 +37,40 @@ export async function POST(req: Request) {
   try {
     const payload = await req.json();
     
-    // Extract bot ID from payload (sometimes at payload.data.bot_id or payload.bot_id)
+    // Extract bot ID from payload
     const botId = payload.data?.bot_id || payload.bot_id;
 
     if (botId) {
       configManager.update({ activeBotId: botId });
     }
 
-    if (payload.event === "bot.transcript" || payload.data?.transcript?.text) {
-      const transcriptText = payload.data?.transcript?.text?.toLowerCase() || "";
+    const transcript = payload.data?.transcript;
+    if (payload.event === "bot.transcript" && transcript?.text) {
+      const text = transcript.text;
+      const speaker = transcript.speaker || "Speaker";
+      const transcriptTextLower = text.toLowerCase();
       const triggerWord = configManager.get().triggerWord.toLowerCase();
+
+      // Asynchronously index the transcript in the background
+      if (text.trim().length > 10) {
+        (async () => {
+          try {
+            const formatted = `[Meeting Transcript] ${speaker}: ${text}`;
+            const vector = await getEmbeddings(formatted);
+            vectorStore.addText(vector, formatted);
+            console.log(`[RAG Indexed] ${formatted}`);
+          } catch (err) {
+            console.error("Failed to index live transcript chunk:", err);
+          }
+        })();
+      }
       
-      if (botId && transcriptText.includes(triggerWord)) {
+      if (botId && transcriptTextLower.includes(triggerWord)) {
         console.log(`Wake word '${triggerWord}' detected! Activating Agentic Engine...`);
         
-        // Extract the actual question after the trigger word if possible, or just pass the whole text
-        const promptIndex = transcriptText.indexOf(triggerWord);
-        const prompt = transcriptText.slice(promptIndex + triggerWord.length).trim() || transcriptText;
+        // Extract actual question after wake word
+        const promptIndex = transcriptTextLower.indexOf(triggerWord);
+        const prompt = text.slice(promptIndex + triggerWord.length).trim() || text;
         
         // Trigger asynchronously so we don't block the webhook response
         processAndReplyToMeeting(botId, prompt);

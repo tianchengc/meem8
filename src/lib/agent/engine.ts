@@ -1,17 +1,7 @@
 import ollama from 'ollama';
-import { pipeline, env } from "@xenova/transformers";
 import { vectorStore } from '../vector/store';
 import { toolRegistry } from './tools';
-
-env.allowLocalModels = false;
-let extractor: any;
-
-async function initExtractor() {
-  if (!extractor) {
-    extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
-  }
-  return extractor;
-}
+import { getEmbeddings } from '../vector/embed';
 
 /**
  * Agentic Engine for Gemma 4 (Local)
@@ -33,13 +23,17 @@ export class AgentEngine {
        const query = match ? match[1].trim() : prompt;
        
        externalContext = await this.executeMcpTool("wikipedia_search", query);
-    }
+     }
 
     // 2. Query Local Vector DB (RAG)
     console.log("Embedding prompt for RAG search...");
-    const getExtractor = await initExtractor();
-    const output = await getExtractor(prompt, { pooling: 'mean', normalize: true });
-    const promptVector = Array.from(output.data) as number[];
+    let promptVector: number[] = [];
+    try {
+      promptVector = await getEmbeddings(prompt);
+    } catch (err) {
+      console.error("Failed to generate embedding for RAG, searching empty vector:", err);
+      promptVector = new Array(384).fill(0);
+    }
     
     const searchResults = vectorStore.search(promptVector, 3);
     const localContext = searchResults.map((r, i) => `[Doc ${i + 1} | Dist: ${r.distance.toFixed(2)}] ${r.text}`).join("\n");
