@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3008",
     "build": "next build",
+    "build:cloudflare": "mv src/app/api /tmp/meem8-api; STATIC_EXPORT=true next build; STATUS=$?; mv /tmp/meem8-api src/app/api; exit $STATUS",
     "start": "next start -p 3008",
     "lint": "eslint",
     "tunnel": "npx ngrok http 3008"

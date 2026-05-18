@@ -1,0 +1,3 @@
+# Meem8 dashboard runs locally — redirect cloud visitors to the setup guide
+/dashboard https://github.com/tianchengc/meem8#setup-guide--air-gapped-local-mode 301
+/dashboard/* https://github.com/tianchengc/meem8#setup-guide--air-gapped-local-mode 301

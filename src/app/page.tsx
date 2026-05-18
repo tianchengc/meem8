@@ -16,7 +16,6 @@ import {
   Terminal,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
 
 type SetupTab = "local" | "cloud";
@@ -124,13 +123,15 @@ export default function LandingPage() {
             <a href="#setup" className="text-sm text-zinc-400 hover:text-white transition-colors hidden sm:block">
               Setup
             </a>
-            <Link
-              href="/dashboard"
+            <a
+              href="http://localhost:3008/dashboard"
+              target="_blank"
+              rel="noreferrer"
               className="px-5 py-2.5 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-emerald-500/50 transition-all text-sm font-medium flex items-center gap-2"
             >
               Launch App
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </a>
           </div>
         </nav>
 
@@ -164,13 +165,15 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <Link
-                href="/dashboard"
+              <a
+                href="http://localhost:3008/dashboard"
+                target="_blank"
+                rel="noreferrer"
                 className="px-8 py-4 rounded-full bg-emerald-500 text-black font-bold tracking-wide hover:bg-emerald-400 transition-colors flex items-center gap-2 shadow-[0_0_30px_rgba(16,185,129,0.3)]"
               >
                 <Play className="w-5 h-5 fill-black" />
                 Open Dashboard
-              </Link>
+              </a>
               <a
                 href="#modes"
                 className="px-8 py-4 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-medium"
@@ -356,13 +359,15 @@ export default function LandingPage() {
                   Both modes feed into the same local Gemma 4 inference engine with full RAG context from your knowledge base. The only difference is how the audio gets in.
                 </p>
               </div>
-              <Link
-                href="/dashboard"
+              <a
+                href="http://localhost:3008/dashboard"
+                target="_blank"
+                rel="noreferrer"
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/8 border border-white/10 hover:bg-white/12 transition-all text-sm font-medium text-white whitespace-nowrap flex-shrink-0"
               >
                 Try it now
                 <ArrowRight className="w-4 h-4" />
-              </Link>
+              </a>
             </motion.div>
           </section>
 
@@ -472,13 +477,15 @@ export default function LandingPage() {
 
             {/* CTA */}
             <div className="flex justify-center mt-14">
-              <Link
-                href="/dashboard"
+              <a
+                href="http://localhost:3008/dashboard"
+                target="_blank"
+                rel="noreferrer"
                 className="px-10 py-4 rounded-full bg-emerald-500 text-black font-bold tracking-wide hover:bg-emerald-400 transition-colors flex items-center gap-2.5 shadow-[0_0_40px_rgba(16,185,129,0.25)]"
               >
                 <Play className="w-5 h-5 fill-black" />
                 Open Dashboard
-              </Link>
+              </a>
             </div>
           </motion.section>
         </main>
