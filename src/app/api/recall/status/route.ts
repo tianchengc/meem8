@@ -41,8 +41,19 @@ export async function GET() {
     }
 
     const bot = await res.json();
-    const statusCode = bot.status?.code || "unknown";
-    const message = bot.status?.message || "";
+    
+    // Recall bot status is stored in the status_changes history array. 
+    // We try to extract it from the latest entry, falling back to a top-level bot.status if available.
+    let statusCode = bot.status?.code;
+    let message = bot.status?.message || "";
+
+    if (!statusCode && bot.status_changes && bot.status_changes.length > 0) {
+      const latestStatus = bot.status_changes[bot.status_changes.length - 1];
+      statusCode = latestStatus.code;
+      message = latestStatus.message || "";
+    }
+
+    statusCode = statusCode || "unknown";
 
     // Determine active status:
     // - ended: call is finished or failed and should be cleared

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Mic, AlertCircle, Radio } from "lucide-react";
+import { Loader2, Mic, AlertCircle, Radio, Check, Info } from "lucide-react";
 
 export interface TranscriptItem {
   id: string;
@@ -17,6 +17,19 @@ export default function LiveTranscript() {
   const [transcripts, setTranscripts] = useState<TranscriptItem[]>([]);
   const [botStatus, setBotStatus] = useState<"active" | "joining" | "inactive" | "error">("inactive");
   const [statusMessage, setStatusMessage] = useState("");
+  const [notification, setNotification] = useState<{
+    type: "success" | "error" | "info";
+    title: string;
+    message: string;
+  } | null>(null);
+
+  const showNotification = (type: "success" | "error" | "info", title: string, message: string) => {
+    setNotification({ type, title, message });
+    // Auto dismiss after 10 seconds to allow reading the full error detail
+    setTimeout(() => {
+      setNotification((current) => current?.title === title ? null : current);
+    }, 10000);
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +48,25 @@ export default function LiveTranscript() {
         setBotStatus("joining");
         setStatusMessage("Bot dispatched successfully!");
         setMeetingUrl("");
+        showNotification(
+          "success",
+          "Invitation Sent",
+          "Recall bot dispatched to the call. Connecting..."
+        );
       } else {
-        alert("Error: " + (data.error || "Failed to dispatch bot"));
+        const detail = data.details?.detail || data.details?.message || data.error || "Failed to dispatch bot.";
+        showNotification(
+          "error",
+          "Dispatch Failed",
+          detail
+        );
       }
     } catch (error) {
-      alert("Network error.");
+      showNotification(
+        "error",
+        "Connection Error",
+        "Failed to reach local server. Check that your Next.js process is running."
+      );
     } finally {
       setIsInviting(false);
     }
@@ -102,7 +129,39 @@ export default function LiveTranscript() {
   }, [transcripts]);
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950/40">
+    <div className="flex flex-col h-full bg-zinc-950/40 relative">
+      {/* Toast Notification */}
+      {notification && (
+        <div className={`absolute top-4 left-4 right-4 z-50 p-4 rounded-2xl border backdrop-blur-xl shadow-2xl animate-in slide-in-from-top duration-300 flex items-start gap-3 ${
+          notification.type === "error" 
+            ? "bg-rose-950/90 border-rose-500/20 shadow-rose-500/[0.08]" 
+            : notification.type === "success"
+              ? "bg-emerald-950/90 border-emerald-500/20 shadow-emerald-500/[0.08]"
+              : "bg-cyan-950/90 border-cyan-500/20 shadow-cyan-500/[0.08]"
+        }`}>
+          {notification.type === "error" && <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />}
+          {notification.type === "success" && <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />}
+          {notification.type === "info" && <Info className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />}
+          
+          <div className="flex-1 min-w-0">
+            <h4 className={`text-xs font-bold tracking-wide uppercase ${
+              notification.type === "error" 
+                ? "text-rose-400" 
+                : notification.type === "success"
+                  ? "text-emerald-400"
+                  : "text-cyan-400"
+            }`}>{notification.title}</h4>
+            <p className="text-[11px] text-zinc-300 leading-normal mt-1 select-text">{notification.message}</p>
+          </div>
+          <button 
+            onClick={() => setNotification(null)}
+            className="text-zinc-500 hover:text-zinc-300 text-[10px] font-bold px-1.5 py-0.5 rounded hover:bg-white/5 transition-colors uppercase tracking-wider"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between p-5 border-b border-white/5 bg-black/20">
         <h2 className="text-sm font-semibold tracking-wider text-zinc-100 flex items-center gap-2.5">

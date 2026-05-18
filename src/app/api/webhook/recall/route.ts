@@ -82,14 +82,18 @@ export async function POST(req: Request) {
     }
 
     const transcript = payload.data?.transcript;
-    if (payload.event === "bot.transcript" && transcript?.text) {
+    const isTranscriptEvent = payload.event === "transcript.data" || payload.event === "bot.transcript";
+
+    if (isTranscriptEvent && transcript?.text) {
       // Resilience: ensure status is active when transcripts arrive
       if (configManager.get().activeBotStatus !== "active") {
         configManager.update({ activeBotStatus: "active" });
       }
 
       const text = transcript.text;
-      const speaker = transcript.speaker || "Speaker";
+      const speaker = typeof transcript.speaker === "object"
+        ? transcript.speaker?.name || "Speaker"
+        : transcript.speaker || "Speaker";
       const transcriptTextLower = text.toLowerCase();
       const triggerWord = configManager.get().triggerWord.toLowerCase();
 
