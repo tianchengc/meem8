@@ -1,25 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  Settings, 
-  FolderHeart, 
-  AlertCircle, 
-  Check, 
-  HelpCircle, 
-  Activity, 
-  Plus, 
-  FileText, 
-  Volume2, 
-  Save, 
+import {
+  Settings,
+  FolderHeart,
+  AlertCircle,
+  Check,
+  HelpCircle,
+  Activity,
+  Plus,
+  FileText,
+  Volume2,
+  Save,
   RefreshCw,
   Copy,
   Terminal,
   ExternalLink,
-  Loader2
+  Loader2,
+  ShieldCheck,
+  Mic,
+  Bot,
 } from "lucide-react";
+import type { AppMode } from "@/lib/appTypes";
 
-export default function WorkspaceSidebar() {
+interface Props {
+  mode: AppMode;
+}
+
+export default function WorkspaceSidebar({ mode }: Props) {
   const [activeTab, setActiveTab] = useState<"control" | "workspace">("control");
   const [triggerWord, setTriggerWord] = useState("hi gemma");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -275,79 +283,155 @@ export default function WorkspaceSidebar() {
               )}
             </section>
 
-            {/* Instruction Panel */}
-            <section className="p-5 rounded-3xl bg-zinc-900/30 border border-white/5 shadow-xl flex flex-col gap-4">
-              <span className="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-emerald-400" />
-                Bot Invite Guide
-              </span>
-              
-              <div className="space-y-4">
-                {/* Step 1 */}
-                <div className="flex gap-3 items-start">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.1)]">
-                    01
+            {/* Instruction Panel — mode-conditional */}
+            {mode === "local" ? (
+              <section className="p-5 rounded-3xl bg-emerald-950/20 border border-emerald-500/10 shadow-xl flex flex-col gap-4">
+                <span className="text-xs font-bold text-emerald-400/80 tracking-wider uppercase flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  Local Mode Setup
+                </span>
+
+                <div className="space-y-4">
+                  {/* Step 1 */}
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400">
+                      01
+                    </div>
+                    <div className="flex-1 space-y-1.5">
+                      <p className="text-[13px] text-zinc-300 font-semibold leading-none">Start Ollama with Gemma 4</p>
+                      <p className="text-[12px] text-zinc-400 leading-normal">
+                        Ensure Ollama is running and the model is loaded:
+                      </p>
+                      <div
+                        onClick={() => copyToClipboard("ollama run gemma4:latest", setCopiedStep1)}
+                        className="p-2.5 rounded-xl bg-black/40 border border-white/5 hover:border-emerald-500/20 transition-all flex items-center justify-between cursor-pointer group"
+                      >
+                        <code className="text-emerald-400 font-mono text-[10px] flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5 text-emerald-500/60" />
+                          ollama run gemma4:latest
+                        </code>
+                        {copiedStep1 ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-zinc-600 leading-normal">
+                        Requires Chrome or Edge — Firefox and Safari don't support the Web Speech API.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 space-y-1.5">
-                    <p className="text-[13px] text-zinc-300 font-semibold leading-none">Start Local Tunnel</p>
-                    <p className="text-[12px] text-zinc-400 leading-normal">Make sure your backend local ngrok tunnel is active in a terminal:</p>
-                    <div 
-                      onClick={() => copyToClipboard("npm run tunnel", setCopiedStep3)}
-                      className="p-2.5 rounded-xl bg-black/40 border border-white/5 hover:border-emerald-500/20 transition-all flex items-center justify-between cursor-pointer group"
-                    >
-                      <code className="text-emerald-400 font-mono text-[10px] flex items-center gap-1.5">
-                        <Terminal className="w-3.5 h-3.5 text-emerald-500/60" />
-                        npm run tunnel
+
+                  {/* Step 2 */}
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400">
+                      02
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-[13px] text-zinc-300 font-semibold leading-none flex items-center gap-1.5">
+                        <Mic className="w-3 h-3 text-emerald-400" />
+                        Enable Microphone
+                      </p>
+                      <p className="text-[12px] text-zinc-400 leading-normal">
+                        Click <span className="text-emerald-300 font-semibold">"Start Local Secure Microphone"</span> in the left panel. Grant browser microphone permission when prompted. Your audio never leaves this device.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400">
+                      03
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-[13px] text-zinc-300 font-semibold leading-none flex items-center gap-1.5">
+                        <Bot className="w-3 h-3 text-emerald-400" />
+                        Invoke Gemma 4
+                      </p>
+                      <p className="text-[12px] text-zinc-400 leading-normal">
+                        Speak naturally — the transcript records everything. To query Gemma, say your trigger word followed by your question:
+                      </p>
+                      <code className="block mt-1.5 p-2 bg-black/30 border border-emerald-500/10 rounded-xl font-mono text-[10px] text-emerald-400 select-all">
+                        "hi gemma, what was agreed on the Q3 deadline?"
                       </code>
-                      {copiedStep3 ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
-                      )}
+                      <p className="text-[11px] text-zinc-600 leading-normal mt-1">
+                        The answer appears in the center panel with full RAG context.
+                      </p>
                     </div>
                   </div>
                 </div>
+              </section>
+            ) : (
+              <section className="p-5 rounded-3xl bg-zinc-900/30 border border-white/5 shadow-xl flex flex-col gap-4">
+                <span className="text-xs font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-blue-400" />
+                  Cloud Bot Setup
+                </span>
 
-                {/* Step 2 */}
-                <div className="flex gap-3 items-start">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.1)]">
-                    02
+                <div className="space-y-4">
+                  {/* Step 1 */}
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400">
+                      01
+                    </div>
+                    <div className="flex-1 space-y-1.5">
+                      <p className="text-[13px] text-zinc-300 font-semibold leading-none">Start Local Tunnel</p>
+                      <p className="text-[12px] text-zinc-400 leading-normal">Expose your backend so Recall.ai can reach it:</p>
+                      <div
+                        onClick={() => copyToClipboard("npm run tunnel", setCopiedStep3)}
+                        className="p-2.5 rounded-xl bg-black/40 border border-white/5 hover:border-blue-500/20 transition-all flex items-center justify-between cursor-pointer group"
+                      >
+                        <code className="text-blue-400 font-mono text-[10px] flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5 text-blue-500/60" />
+                          npm run tunnel
+                        </code>
+                        {copiedStep3 ? (
+                          <Check className="w-3.5 h-3.5 text-blue-400" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5 text-zinc-500 group-hover:text-blue-400 transition-colors" />
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-[13px] text-zinc-300 font-semibold leading-none">Configure Webhook</p>
-                    <p className="text-[12px] text-zinc-400 leading-normal">
-                      Copy the generated <code className="text-emerald-400 px-1 py-0.5 bg-white/5 rounded font-mono text-[10px]">ngrok</code> forwarding URL from your terminal. 
-                    </p>
-                    <p className="text-[12px] text-zinc-400 leading-normal">
-                      Configure it as the Webhook URL in your Recall.ai workspace dashboard, appending the webhook path:
-                      <code className="block mt-1.5 p-2 bg-black/30 border border-white/5 rounded-xl font-mono text-[10px] text-zinc-300 select-all">
-                        https://&lt;your-ngrok&gt;/api/webhook/recall
-                      </code>
-                    </p>
-                    <a 
-                      href="https://dashboard.recall.ai" 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors font-medium mt-1 hover:underline"
-                    >
-                      Open Recall Dashboard
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+
+                  {/* Step 2 */}
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400">
+                      02
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-[13px] text-zinc-300 font-semibold leading-none">Configure Webhook</p>
+                      <p className="text-[12px] text-zinc-400 leading-normal">
+                        Paste your <code className="text-blue-400 px-1 py-0.5 bg-white/5 rounded font-mono text-[10px]">ngrok</code> URL into the Recall.ai dashboard:
+                        <code className="block mt-1.5 p-2 bg-black/30 border border-white/5 rounded-xl font-mono text-[10px] text-zinc-300 select-all">
+                          https://&lt;ngrok&gt;/api/webhook/recall
+                        </code>
+                      </p>
+                      <a
+                        href="https://dashboard.recall.ai"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors font-medium mt-1 hover:underline"
+                      >
+                        Open Recall Dashboard
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400">
+                      03
+                    </div>
+                    <div className="flex-1 space-y-1 text-[12px] text-zinc-400 leading-normal">
+                      <p className="text-[13px] text-zinc-300 font-semibold leading-none mb-1">Invite Bot</p>
+                      Paste the meeting URL into the left panel and click <span className="text-blue-300 font-semibold">"Invite Bot"</span>. The co-pilot joins and streams live transcripts and agent responses.
+                    </div>
                   </div>
                 </div>
-
-                {/* Step 3 */}
-                <div className="flex gap-3 items-start">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.1)]">
-                    03
-                  </div>
-                  <div className="flex-1 space-y-1 text-[12px] text-zinc-400 leading-normal">
-                    <p className="text-[13px] text-zinc-300 font-semibold leading-none mb-1">Invite Bot</p>
-                    Paste the meeting link into the left panel input in the dashboard and click "Invite Bot". The co-pilot will join and immediately begin live transcription and agentic response.
-                  </div>
-                </div>
-              </div>
-            </section>
+              </section>
+            )}
 
           </div>
         )}

@@ -38,20 +38,17 @@ export class AgentEngine {
     const searchResults = vectorStore.search(promptVector, 3);
     const localContext = searchResults.map((r, i) => `[Doc ${i + 1} | Dist: ${r.distance.toFixed(2)}] ${r.text}`).join("\n");
 
-    const augmentedPrompt = `
-You are Gemma, a local privacy-first Meeting Co-Pilot.
-Answer the user's prompt based ONLY on the provided Internal Knowledge Base Matches or External Tool Results.
-If the context contains the answer, summarize it. If it doesn't, inform the user.
+    const hasLocalContext = searchResults.length > 0 && searchResults[0].distance < 1.5;
+    const hasExternalContext = externalContext.trim().length > 0;
 
-Internal Knowledge Base Matches:
-${localContext || "No relevant local documents found."}
-
-External Tool Results:
-${externalContext || "No tools executed."}
-
-User Prompt:
-${prompt}
-`;
+    const augmentedPrompt = `You are Gemma, a local privacy-first AI Meeting Co-Pilot. Be concise, direct, and genuinely helpful.
+${hasLocalContext || hasExternalContext ? `
+Use the following context to inform your answer where relevant:
+${hasLocalContext ? `\nKnowledge Base:\n${localContext}` : ""}
+${hasExternalContext ? `\nTool Results:\n${externalContext}` : ""}
+` : ""}
+User: ${prompt}
+Gemma:`;
 
     // 3. Stream Response via Ollama
     return this.streamFromOllama(augmentedPrompt);
